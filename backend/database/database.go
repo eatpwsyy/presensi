@@ -31,7 +31,7 @@ func InitDatabase() {
 		&models.Admin{},
 		&models.Attendance{},
 		&handlers.QRSession{},
-		&handlers.QRAttendance{},
+		&models.QRAttendance{},
 		&models.Parent{},
 		&models.StudentParent{},
 		&models.Notification{},
