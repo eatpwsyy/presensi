@@ -139,8 +139,13 @@ func GetMyAttendance(c *gin.Context) {
 	
 	if month != "" {
 		startDate := month + "-01"
-		endDate := month + "-31"
-		query = query.Where("date >= ? AND date <= ?", startDate, endDate)
+		parsedMonth, err := time.Parse("2006-01", month)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid month format"})
+			return
+		}
+		lastDay := parsedMonth.AddDate(0, 1, -1).Format("2006-01-02")
+		query = query.Where("date >= ? AND date <= ?", startDate, lastDay)
 	}
 
 	var attendances []models.Attendance
