@@ -7,9 +7,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"os"
 )
 
-var jwtSecret = []byte("school-attendance-secret-key-change-in-production")
+var jwtSecret = []byte(getJWTSecret())
 
 type Claims struct {
 	UserID   uint   `json:"user_id"`
