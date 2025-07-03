@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
+	"school-attendance/handlers"
 	"school-attendance/models"
 	"time"
 
@@ -29,6 +30,11 @@ func InitDatabase() {
 		&models.Student{},
 		&models.Admin{},
 		&models.Attendance{},
+		&handlers.QRSession{},
+		&handlers.QRAttendance{},
+		&models.Parent{},
+		&models.StudentParent{},
+		&models.Notification{},
 	)
 	
 	if err != nil {
