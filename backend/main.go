@@ -26,6 +26,9 @@ func main() {
 		AllowCredentials: true,
 	}))
 
+	// WebSocket endpoint for real-time notifications
+	r.GET("/ws", handlers.HandleWebSocket)
+
 	// API routes
 	api := r.Group("/api")
 	{
@@ -45,6 +48,9 @@ func main() {
 			student.POST("/checkin", handlers.CheckIn)
 			student.POST("/checkout", handlers.CheckOut)
 			student.GET("/attendance", handlers.GetMyAttendance)
+			
+			// QR Code scanning
+			student.POST("/qr/scan", handlers.ScanQRCode)
 		}
 
 		// Protected routes - Admin
@@ -67,6 +73,17 @@ func main() {
 			admin.POST("/attendance", handlers.CreateAttendance)
 			admin.PUT("/attendance/:id", handlers.UpdateAttendance)
 			admin.GET("/attendance/stats", handlers.GetAttendanceStats)
+			
+			// QR Code attendance system
+			admin.POST("/qr/generate", handlers.GenerateQRCode)
+			admin.GET("/qr/sessions", handlers.GetQRSessions)
+			admin.PUT("/qr/sessions/:session_code/deactivate", handlers.DeactivateQRSession)
+			admin.GET("/qr/attendance/:session_code", handlers.GetQRAttendanceReport)
+			
+			// Report exports
+			admin.GET("/reports/export/pdf", handlers.ExportAttendanceToPDF)
+			admin.GET("/reports/export/excel", handlers.ExportAttendanceToExcel)
+			admin.GET("/reports/stats", handlers.GetAttendanceStats)
 		}
 
 		// Protected routes - Both student and admin
