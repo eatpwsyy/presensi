@@ -14,8 +14,8 @@ import {
   Tooltip, 
   Legend 
 } from 'chart.js'
-import { api } from '@/lib/api'
-import { format, subDays, startOfWeek, endOfWeek } from 'date-fns'
+import api from '@/lib/api'
+import { format, startOfWeek, endOfWeek } from 'date-fns'
 import { id } from 'date-fns/locale'
 
 // Register Chart.js components
@@ -66,10 +66,31 @@ export default function AnalyticsDashboard() {
   const [selectedGrade, setSelectedGrade] = useState('')
 
   useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true)
+        const params = new URLSearchParams()
+        
+        if (dateRange.start_date) params.append('start_date', dateRange.start_date)
+        if (dateRange.end_date) params.append('end_date', dateRange.end_date)
+        if (selectedClass) params.append('class', selectedClass)
+        if (selectedGrade) params.append('grade', selectedGrade)
+
+        const response = await api.get(`/admin/reports/stats?${params.toString()}`)
+        setStats(response.data)
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchStats()
   }, [dateRange, selectedClass, selectedGrade])
 
-  const fetchStats = async () => {
+  // Function to manually refresh stats if needed
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const refreshStats = async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams()

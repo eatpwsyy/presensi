@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Toaster } from "react-hot-toast";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Sistem Presensi Sekolah",
@@ -18,25 +16,32 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="id">
-      <body className={inter.className}>
-        <AuthProvider>
-          <NotificationProvider>
-            <div className="min-h-screen bg-gray-50">
-              {children}
-            </div>
-            <Toaster 
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#363636',
-                  color: '#fff',
-                },
-              }}
-            />
-          </NotificationProvider>
-        </AuthProvider>
+    <html lang="id" suppressHydrationWarning>
+      <head>
+        <meta name="theme-color" content="#ffffff" />
+      </head>
+      <body className="font-sans theme-transition">
+        <ThemeProvider>
+          <AuthProvider>
+            <NotificationProvider>
+              <div className="min-h-screen bg-background text-foreground">
+                {children}
+              </div>
+              <Toaster 
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  className: 'theme-transition',
+                  style: {
+                    background: 'var(--card)',
+                    color: 'var(--card-foreground)',
+                    border: '1px solid var(--border)',
+                  },
+                }}
+              />
+            </NotificationProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

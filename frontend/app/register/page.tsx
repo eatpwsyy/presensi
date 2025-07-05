@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { authApi } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { SimpleThemeToggle } from '@/components/ThemeToggle';
 import { StudentRegisterRequest } from '@/types';
 
 export default function RegisterPage() {
@@ -30,26 +31,39 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      const { confirmPassword, ...registerData } = data;
+      // Use confirmPassword for validation but don't include in API request
+      if (data.password !== data.confirmPassword) {
+        setError('Password dan konfirmasi password tidak sama');
+        return;
+      }
+      
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { confirmPassword: _, ...registerData } = data;
       const response = await authApi.studentRegister(registerData);
       
       login(response.token, response.user, 'student');
       router.push('/student/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Pendaftaran gagal. Silakan coba lagi.');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      setError(error.response?.data?.error || 'Pendaftaran gagal. Silakan coba lagi.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8">
-      <Card className="w-full max-w-lg">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800">
+      {/* Theme Toggle */}
+      <div className="absolute top-4 right-4 z-10">
+        <SimpleThemeToggle />
+      </div>
+      
+      <Card className="w-full max-w-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-gray-200 dark:border-slate-700 shadow-xl">
         <CardHeader>
-          <CardTitle className="text-center text-2xl">
+          <CardTitle className="text-center text-xl sm:text-2xl text-gray-900 dark:text-white">
             Daftar Akun Siswa
           </CardTitle>
-          <p className="text-center text-gray-600 mt-2">
+          <p className="text-center text-gray-600 dark:text-gray-400 mt-2">
             Lengkapi form berikut untuk membuat akun
           </p>
         </CardHeader>

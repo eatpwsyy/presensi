@@ -1,0 +1,32 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+presensi-backend
+
+# Test files
+*_test.go
+
+# Development files
+.air.toml
+tmp/
+
+# Database files (will be in volume)
+database/*.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Logs
+*.log
