@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { authApi } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { SimpleThemeToggle } from '@/components/ThemeToggle';
 import { StudentRegisterRequest } from '@/types';
 
 export default function RegisterPage() {
@@ -30,13 +31,20 @@ export default function RegisterPage() {
     setError('');
 
     try {
-      const { confirmPassword, ...registerData } = data;
+      // Use confirmPassword for validation but don't include in API request
+      if (data.password !== data.confirmPassword) {
+        setError('Password dan konfirmasi password tidak sama');
+        return;
+      }
+      
+      const { confirmPassword: _, ...registerData } = data;
       const response = await authApi.studentRegister(registerData);
       
       login(response.token, response.user, 'student');
       router.push('/student/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Pendaftaran gagal. Silakan coba lagi.');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      setError(error.response?.data?.error || 'Pendaftaran gagal. Silakan coba lagi.');
     } finally {
       setLoading(false);
     }

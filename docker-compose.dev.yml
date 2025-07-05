@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  backend-dev:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_PATH=/app/database/presensi.db
+      - JWT_SECRET=dev-secret-key
+      - GIN_MODE=debug
+    volumes:
+      - ./backend:/app
+      - backend_dev_data:/app/database
+    restart: unless-stopped
+    command: go run main.go
+
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8080
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend-dev
+    restart: unless-stopped
+    command: npm run dev
+
+volumes:
+  backend_dev_data:
+    driver: local
+
+networks:
+  default:
+    name: presensi-dev-network
