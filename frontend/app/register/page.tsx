@@ -37,6 +37,7 @@ export default function RegisterPage() {
         return;
       }
       
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { confirmPassword: _, ...registerData } = data;
       const response = await authApi.studentRegister(registerData);
       
@@ -51,13 +52,18 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8">
-      <Card className="w-full max-w-lg">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800">
+      {/* Theme Toggle */}
+      <div className="absolute top-4 right-4 z-10">
+        <SimpleThemeToggle />
+      </div>
+      
+      <Card className="w-full max-w-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-gray-200 dark:border-slate-700 shadow-xl">
         <CardHeader>
-          <CardTitle className="text-center text-2xl">
+          <CardTitle className="text-center text-xl sm:text-2xl text-gray-900 dark:text-white">
             Daftar Akun Siswa
           </CardTitle>
-          <p className="text-center text-gray-600 mt-2">
+          <p className="text-center text-gray-600 dark:text-gray-400 mt-2">
             Lengkapi form berikut untuk membuat akun
           </p>
         </CardHeader>

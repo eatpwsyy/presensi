@@ -2,6 +2,26 @@
 
 Sistem manajemen presensi sekolah yang dibangun dengan Golang (backend) dan Next.js 15 (frontend). Sistem ini memungkinkan siswa untuk melakukan check-in/check-out kehadiran dan admin untuk mengelola data siswa serta laporan presensi.
 
+## 🎉 Fitur Baru!
+
+### 🐳 Docker Support
+- **Production Ready**: Dockerfile dan docker-compose untuk deployment
+- **Development Environment**: Hot reloading dengan Air (Go) dan Next.js dev mode
+- **Easy Setup**: Script otomatis untuk menjalankan development atau production
+- **Documentation**: Comprehensive Docker setup guide
+
+### 🌙 Dark Mode
+- **Theme Toggle**: Light, Dark, dan System preference
+- **Persistent Storage**: Theme tersimpan di localStorage
+- **Smooth Transitions**: Animasi transisi yang halus antar tema
+- **System Integration**: Deteksi otomatis system theme preference
+
+### 📱 Mobile-First Design
+- **Responsive Layout**: Desain yang dioptimalkan untuk mobile devices
+- **Touch-Friendly**: Touch targets yang lebih besar untuk mobile
+- **Modern UI**: Gradient backgrounds dan backdrop blur effects
+- **Improved UX**: Better spacing dan visual hierarchy
+
 ## Fitur Utama
 
 ### Untuk Siswa:
@@ -36,6 +56,46 @@ Sistem manajemen presensi sekolah yang dibangun dengan Golang (backend) dan Next
 - **HTTP Client**: axios
 - **Icons**: lucide-react
 - **Date Utilities**: date-fns
+- **Theme Management**: Custom ThemeProvider dengan dark mode support
+
+## 🚀 Quick Start
+
+### Option 1: Docker (Recommended)
+
+```bash
+# Clone repository
+git clone https://github.com/eatpwsyy/presensi.git
+cd presensi
+
+# Development environment
+./docker-setup.sh dev
+
+# Production environment  
+./docker-setup.sh prod
+```
+
+### Option 2: Manual Setup
+
+```bash
+# Backend setup
+cd backend
+go mod tidy
+go run main.go
+
+# Frontend setup (new terminal)
+cd frontend
+npm install
+npm run dev
+```
+
+### URLs
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8080
+- **WebSocket**: ws://localhost:8080/ws
+
+### Default Admin Login
+- **Email**: admin@school.com
+- **Password**: admin123
 
 ## Struktur Proyek
 
@@ -69,18 +129,28 @@ Sistem manajemen presensi sekolah yang dibangun dengan Golang (backend) dan Next
     │   └── api.ts          # API client
     ├── types/              # TypeScript types
     │   └── index.ts        # Type definitions
+    ├── Dockerfile          # Production Docker image
+    ├── Dockerfile.dev      # Development Docker image
     └── utils/              # Utility functions
         └── format.ts       # Formatting utilities
+├── docker-compose.yml      # Production Docker Compose
+├── docker-compose.dev.yml  # Development Docker Compose
+├── docker-setup.sh         # Docker management script
+└── DOCKER_README.md        # Docker documentation
 ```
 
 ## Cara Menjalankan Aplikasi
 
-### Prerequisites
+> **💡 Tip**: Gunakan Docker untuk setup yang lebih mudah! Lihat [Quick Start](#-quick-start) di atas.
+
+### Manual Setup
+
+#### Prerequisites
 - Go 1.21 atau lebih baru
 - Node.js 18 atau lebih baru
 - npm atau yarn
 
-### 1. Menjalankan Backend
+#### 1. Menjalankan Backend
 
 ```bash
 # Masuk ke direktori backend
@@ -109,6 +179,44 @@ npm run dev
 ```
 
 Frontend akan berjalan di `http://localhost:3000`
+
+## Docker Commands
+
+```bash
+# Development
+./docker-setup.sh dev     # Start development environment
+./docker-setup.sh logs    # View logs
+./docker-setup.sh stop    # Stop containers
+
+# Production
+./docker-setup.sh prod    # Start production environment
+./docker-setup.sh build   # Build images
+./docker-setup.sh clean   # Remove containers and images
+```
+
+Lihat [DOCKER_README.md](./DOCKER_README.md) untuk dokumentasi lengkap Docker.
+
+Frontend akan berjalan di `http://localhost:3000`
+
+## 🎨 Fitur UI/UX
+
+### Dark Mode
+- **Toggle Theme**: Beralih antara light, dark, dan system theme
+- **Persistent**: Preferensi theme tersimpan di browser
+- **System Detection**: Otomatis mengikuti system theme
+- **Smooth Transition**: Animasi halus saat beralih theme
+
+### Mobile-First Design
+- **Responsive**: Layout yang optimal di semua ukuran layar
+- **Touch Friendly**: Button dan input yang mudah diakses di mobile
+- **Modern UI**: Gradient background dan backdrop blur
+- **Accessibility**: Focus states dan keyboard navigation
+
+### Visual Improvements
+- **Clean Design**: Interface yang bersih dan modern
+- **Better Typography**: Hierarki yang jelas dengan ukuran font responsif
+- **Enhanced Cards**: Shadow dan border yang subtle
+- **Loading States**: Indicator loading yang informatif
 
 ## API Endpoints
 

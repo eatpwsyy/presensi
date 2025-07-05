@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode'
 import { toast } from 'react-hot-toast'
-import { api } from '@/lib/api'
+import api from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function QRScanner() {
@@ -56,7 +56,7 @@ export default function QRScanner() {
           // Submit attendance
           const response = await api.post('/student/qr/scan', {
             qr_data: decodedText,
-            student_id: user?.student_id,
+            student_id: (user as { student_id?: string })?.student_id,
             location: navigator.geolocation ? await getCurrentLocation() : 'Unknown'
           })
 
@@ -67,8 +67,9 @@ export default function QRScanner() {
           setScanning(false)
           setScanner(null)
 
-        } catch (error: any) {
-          const errorMessage = error.response?.data?.error || 'Gagal memproses QR Code'
+        } catch (error: unknown) {
+          const err = error as { response?: { data?: { error?: string } } };
+          const errorMessage = err.response?.data?.error || 'Gagal memproses QR Code'
           toast.error(errorMessage)
         }
       },

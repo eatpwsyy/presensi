@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { toast } from 'react-hot-toast'
-import { api } from '@/lib/api'
+import api from '@/lib/api'
 
 interface QRSession {
   session_code: string
@@ -43,7 +43,7 @@ export default function QRCodeGenerator() {
   const downloadQR = () => {
     if (!qrSession) return
 
-    // Create QR code data for mobile app
+    // Create QR code data for mobile app and use it for canvas generation
     const qrData = {
       session_code: qrSession.session_code,
       subject: qrSession.subject,
@@ -53,6 +53,7 @@ export default function QRCodeGenerator() {
     }
 
     const canvas = document.createElement('canvas')
+    console.log('Generating QR for download:', qrData)
     const qrCodeElement = document.querySelector('#qr-code svg') as SVGElement
     if (!qrCodeElement) return
 
