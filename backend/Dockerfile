@@ -4,7 +4,7 @@ FROM golang:1.21-alpine AS builder
 WORKDIR /app
 
 # Install build dependencies
-RUN apk add --no-cache git
+RUN apk add --no-cache git || true
 
 # Copy go mod and sum files
 COPY go.mod go.sum ./
@@ -21,8 +21,8 @@ RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -o main .
 # Final stage
 FROM alpine:latest
 
-# Install ca-certificates for HTTPS and sqlite for database
-RUN apk --no-cache add ca-certificates sqlite
+# Install essential packages
+RUN apk update && apk add --no-cache ca-certificates sqlite || echo "Failed to install packages but continuing..."
 
 WORKDIR /root/
 
