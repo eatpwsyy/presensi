@@ -14,7 +14,7 @@ import {
   Tooltip, 
   Legend 
 } from 'chart.js'
-import { api } from '@/lib/api'
+import api from '@/lib/api'
 import { format, subDays, startOfWeek, endOfWeek } from 'date-fns'
 import { id } from 'date-fns/locale'
 

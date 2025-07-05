@@ -4,11 +4,19 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
-	"os"
 )
+
+func getJWTSecret() string {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		return "your-super-secret-jwt-key-change-this-in-production"
+	}
+	return secret
+}
 
 var jwtSecret = []byte(getJWTSecret())
 

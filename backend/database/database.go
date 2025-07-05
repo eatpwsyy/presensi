@@ -3,9 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
-	"school-attendance/handlers"
 	"school-attendance/models"
-	"time"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -30,7 +28,7 @@ func InitDatabase() {
 		&models.Student{},
 		&models.Admin{},
 		&models.Attendance{},
-		&handlers.QRSession{},
+		&models.QRSession{},
 		&models.QRAttendance{},
 		&models.Parent{},
 		&models.StudentParent{},

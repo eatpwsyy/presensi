@@ -3,13 +3,13 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Html5QrcodeScanner, Html5QrcodeScanType } from 'html5-qrcode'
 import { toast } from 'react-hot-toast'
-import { api } from '@/lib/api'
+import api from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function QRScanner() {
   const [scanning, setScanning] = useState(false)
   const [scanner, setScanner] = useState<Html5QrcodeScanner | null>(null)
-  const { user } = useAuth()
+  const { user, userType } = useAuth()
   const scannerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function QRScanner() {
           // Submit attendance
           const response = await api.post('/student/qr/scan', {
             qr_data: decodedText,
-            student_id: user?.student_id,
+            student_id: userType === 'student' ? (user as any)?.student_id : undefined,
             location: navigator.geolocation ? await getCurrentLocation() : 'Unknown'
           })
 

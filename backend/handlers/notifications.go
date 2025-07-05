@@ -9,10 +9,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
-import (
-	"os"
-	"strings"
-)
+
+func getAllowedOrigins() []string {
+	return []string{
+		"http://localhost:3000",
+		"http://localhost:3001", 
+		"http://127.0.0.1:3000",
+		"http://127.0.0.1:3001",
+	}
+}
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {

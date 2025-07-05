@@ -6,34 +6,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
+	"school-attendance/database"
+	"school-attendance/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/skip2/go-qrcode"
-	"gorm.io/gorm"
 )
-
-type QRSession struct {
-	ID          uint      `json:"id" gorm:"primaryKey"`
-	SessionCode string    `json:"session_code" gorm:"unique;not null"`
-	Subject     string    `json:"subject"`
-	Teacher     string    `json:"teacher"`
-	Location    string    `json:"location"`
-	ExpiresAt   time.Time `json:"expires_at"`
-	IsActive    bool      `json:"is_active" gorm:"default:true"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-}
-
-type QRAttendance struct {
-	ID          uint      `json:"id" gorm:"primaryKey"`
-	SessionCode string    `json:"session_code"`
-	StudentID   string    `json:"student_id"`
-	ScanTime    time.Time `json:"scan_time"`
-	Location    string    `json:"location"`
-	CreatedAt   time.Time `json:"created_at"`
-}
 
 func generateSessionCode() string {
 	bytes := make([]byte, 16)
@@ -62,7 +41,7 @@ func GenerateQRCode(c *gin.Context) {
 	sessionCode := generateSessionCode()
 	expiresAt := time.Now().Add(time.Duration(duration) * time.Minute)
 
-	qrSession := QRSession{
+	qrSession := models.QRSession{
 		SessionCode: sessionCode,
 		Subject:     request.Subject,
 		Teacher:     request.Teacher,
@@ -71,7 +50,7 @@ func GenerateQRCode(c *gin.Context) {
 		IsActive:    true,
 	}
 
-	db := c.MustGet("db").(*gorm.DB)
+	db := database.GetDB()
 	if err := db.Create(&qrSession).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create QR session"})
 		return
@@ -142,39 +121,39 @@ func ScanQRCode(c *gin.Context) {
 		return
 	}
 
-	db := c.MustGet("db").(*gorm.DB)
+	db := database.GetDB()
 
 	// Check if QR session exists and is active
-	var qrSession QRSession
+	var qrSession models.QRSession
 	if err := db.Where("session_code = ? AND is_active = ?", sessionCode, true).First(&qrSession).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "QR session not found or inactive"})
 		return
 	}
 
+	// Find student by student_id
+	var student models.Student
+	if err := db.Where("student_id = ?", request.StudentID).First(&student).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Student not found"})
+		return
+	}
+
 	// Check if student already scanned this QR code
-	var existingAttendance QRAttendance
-	if err := db.Where("session_code = ? AND student_id = ?", sessionCode, request.StudentID).First(&existingAttendance).Error; err == nil {
+	var existingAttendance models.QRAttendance
+	if err := db.Where("qr_session_id = ? AND student_id = ?", qrSession.ID, student.ID).First(&existingAttendance).Error; err == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Student already marked attendance for this session"})
 		return
 	}
 
-	// Create attendance record
-	qrAttendance := QRAttendance{
-		SessionCode: sessionCode,
-		StudentID:   request.StudentID,
+	// Create attendance record  
+	qrAttendance := models.QRAttendance{
+		StudentID:   student.ID,
+		QRSessionID: qrSession.ID,
 		ScanTime:    time.Now(),
 		Location:    request.Location,
 	}
 
 	if err := db.Create(&qrAttendance).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to record attendance"})
-		return
-	}
-
-	// Get student information for notification
-	var student Student
-	if err := db.Where("student_id = ?", request.StudentID).First(&student).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Student not found"})
 		return
 	}
 
@@ -195,9 +174,9 @@ func ScanQRCode(c *gin.Context) {
 }
 
 func GetQRSessions(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+	db := database.GetDB()
 
-	var sessions []QRSession
+	var sessions []models.QRSession
 	if err := db.Where("is_active = ?", true).Order("created_at DESC").Find(&sessions).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch QR sessions"})
 		return
@@ -208,9 +187,9 @@ func GetQRSessions(c *gin.Context) {
 
 func DeactivateQRSession(c *gin.Context) {
 	sessionCode := c.Param("session_code")
-	db := c.MustGet("db").(*gorm.DB)
+	db := database.GetDB()
 
-	if err := db.Model(&QRSession{}).Where("session_code = ?", sessionCode).Update("is_active", false).Error; err != nil {
+	if err := db.Model(&models.QRSession{}).Where("session_code = ?", sessionCode).Update("is_active", false).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to deactivate QR session"})
 		return
 	}
@@ -220,10 +199,10 @@ func DeactivateQRSession(c *gin.Context) {
 
 func GetQRAttendanceReport(c *gin.Context) {
 	sessionCode := c.Param("session_code")
-	db := c.MustGet("db").(*gorm.DB)
+	db := database.GetDB()
 
 	var attendances []struct {
-		QRAttendance
+		models.QRAttendance
 		StudentName string `json:"student_name"`
 		Class       string `json:"class"`
 		Grade       string `json:"grade"`
@@ -232,8 +211,9 @@ func GetQRAttendanceReport(c *gin.Context) {
 	query := `
 		SELECT qa.*, s.name as student_name, s.class, s.grade 
 		FROM qr_attendances qa 
-		JOIN students s ON qa.student_id = s.student_id 
-		WHERE qa.session_code = ? 
+		JOIN students s ON qa.student_id = s.id 
+		JOIN qr_sessions qs ON qa.qr_session_id = qs.id
+		WHERE qs.session_code = ? 
 		ORDER BY qa.scan_time ASC
 	`
 
@@ -243,7 +223,7 @@ func GetQRAttendanceReport(c *gin.Context) {
 	}
 
 	// Get session information
-	var session QRSession
+	var session models.QRSession
 	if err := db.Where("session_code = ?", sessionCode).First(&session).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Session not found"})
 		return

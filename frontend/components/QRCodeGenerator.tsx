@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { toast } from 'react-hot-toast'
-import { api } from '@/lib/api'
+import api from '@/lib/api'
 
 interface QRSession {
   session_code: string
